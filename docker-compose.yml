@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ./web
+    container_name: cleodocker_web
+    restart: unless-stopped
+    ports:
+      - "8080:5000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Acceso al socket de Docker (solo lectura)
+    environment:
+      - FLASK_ENV=development
+      - SECRET_KEY=una-clave-secreta-muy-fuerte-deberia-ir-aqui # Cambiar en producción
+      - DATABASE_PATH=/app/config/cleodocker.db
+    networks:
+      - cleonet
+
+  # --- Servicios de Monitorización ---
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cleodocker_cadvisor
+    restart: unless-stopped
+    privileged: true
+    # No es necesario exponer el puerto si solo el panel web lo consume
+    # ports:
+    #   - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - cleonet
+
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: cleodocker_node_exporter
+    restart: unless-stopped
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - cleonet
+
+networks:
+  cleonet:
+    driver: bridge
+    name: cleodocker_network

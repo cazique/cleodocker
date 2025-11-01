@@ -1,0 +1,29 @@
+{
+    "general": {
+        "app_name": "cleodocker",
+        "default_language": "en",
+        "log_level": "INFO"
+    },
+    "web_panel": {
+        "port": 8080,
+        "enable_ssl": false,
+        "session_timeout_minutes": 60
+    },
+    "docker": {
+        "default_network": "cleodocker_network"
+    },
+    "backup": {
+        "enabled": true,
+        "schedule": "0 2 * * *",
+        "retention_days": 7,
+        "backup_path": "/var/backups/cleodocker"
+    },
+    "updates": {
+        "check_on_startup": true,
+        "auto_update": false
+    },
+    "colima": {
+        "default_cpu": 2,
+        "default_memory_gb": 4
+    }
+}

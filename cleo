@@ -1,0 +1,175 @@
+#!/bin/bash
+#
+# cleo - Command Line Interface para cleodocker
+#
+# Este script proporciona una interfaz para gestionar la instancia de cleodocker,
+# incluyendo el estado de los servicios, actualizaciones, backups y más.
+#
+
+# --- Configuración ---
+CLEO_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+cd "$CLEO_DIR" || exit 1
+
+# Cargar módulos y utilidades
+# Descomentar cuando se implementen los módulos correspondientes
+# source "modules/i18n_manager.sh"
+# source "modules/backup_manager.sh"
+
+# --- MOCK de i18n para que el script funcione sin el módulo completo ---
+# En una implementación real, esto sería reemplazado por i18n_manager.sh
+# que leería archivos JSON.
+LANG=${LANG%%.*}
+declare -A I18N
+case "$LANG" in
+    es*)
+        I18N=(
+            ["cli_usage"]="Uso"
+            ["cli_command"]="comando"
+            ["cli_available_commands"]="Comandos disponibles"
+            ["cli_help_start"]="Inicia todos los servicios de cleodocker"
+            ["cli_help_stop"]="Detiene todos los servicios de cleodocker"
+            ["cli_help_restart"]="Reinicia todos los servicios de cleodocker"
+            ["cli_help_status"]="Muestra el estado de los servicios"
+            ["cli_help_logs"]="Ver logs de un servicio (o todos)"
+            ["cli_help_update"]="Actualiza cleodocker y sus contenedores"
+            ["unknown_command"]="Error: Comando desconocido"
+            ["docker_compose_not_found"]="Error: No se encontró el comando 'docker compose' o 'docker-compose'."
+        )
+        ;;
+    *) # Inglés por defecto
+        I18N=(
+            ["cli_usage"]="Usage"
+            ["cli_command"]="command"
+            ["cli_available_commands"]="Available commands"
+            ["cli_help_start"]="Start all cleodocker services"
+            ["cli_help_stop"]="Stop all cleodocker services"
+            ["cli_help_restart"]="Restart all cleodocker services"
+            ["cli_help_status"]="Show the status of the services"
+            ["cli_help_logs"]="View logs for a service (or all)"
+            ["cli_help_update"]="Update cleodocker and its containers"
+            ["unknown_command"]="Error: Unknown command"
+            ["docker_compose_not_found"]="Error: 'docker compose' or 'docker-compose' command not found."
+        )
+        ;;
+esac
+get_translation() {
+    echo "${I18N[$1]:-$1}"
+}
+# --- FIN MOCK i18n ---
+
+# Determinar el comando de Docker Compose
+if docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "$(get_translation 'docker_compose_not_found')" >&2
+    exit 1
+fi
+
+# --- Funciones del CLI ---
+
+# Muestra el menú de ayuda
+show_help() {
+    echo "$(get_translation 'cli_usage'): cleo [$(get_translation 'cli_command')]"
+    echo ""
+    echo "$(get_translation 'cli_available_commands'):"
+    echo "  start         - $(get_translation 'cli_help_start')"
+    echo "  stop          - $(get_translation 'cli_help_stop')"
+    echo "  restart       - $(get_translation 'cli_help_restart')"
+    echo "  status        - $(get_translation 'cli_help_status')"
+    echo "  logs [service] - $(get_translation 'cli_help_logs')"
+    echo "  update        - $(get_translation 'cli_help_update')"
+    echo "  help          - Muestra este mensaje de ayuda"
+    echo ""
+}
+
+# Inicia los servicios
+start_services() {
+    echo "Iniciando servicios de cleodocker..."
+    $COMPOSE_CMD up -d
+    echo "Servicios iniciados."
+}
+
+# Detiene los servicios
+stop_services() {
+    echo "Deteniendo servicios de cleodocker..."
+    $COMPOSE_CMD down
+    echo "Servicios detenidos."
+}
+
+# Reinicia los servicios
+restart_services() {
+    echo "Reiniciando servicios de cleodocker..."
+    $COMPOSE_CMD restart
+    echo "Servicios reiniciados."
+}
+
+# Muestra el estado de los servicios
+show_status() {
+    echo "Comprobando estado de los servicios..."
+    $COMPOSE_CMD ps
+}
+
+# Muestra los logs de un servicio o de todos
+show_logs() {
+    if [ -z "$1" ]; then
+        echo "Mostrando logs de todos los servicios. Pulsa Ctrl+C para salir."
+        $COMPOSE_CMD logs -f --tail 100
+    else
+        echo "Mostrando logs para el servicio $1. Pulsa Ctrl+C para salir."
+        $COMPOSE_CMD logs -f --tail 100 "$1"
+    fi
+}
+
+# Actualiza cleodocker y los contenedores
+update_all() {
+    echo "Actualizando cleodocker..."
+    
+    echo "  - Actualizando el repositorio base..."
+    git pull
+    
+    echo "  - Descargando las últimas imágenes de Docker..."
+    $COMPOSE_CMD pull
+    
+    echo "  - Recreando los contenedores..."
+    $COMPOSE_CMD up -d --force-recreate --remove-orphans
+    
+    echo "Actualización completada."
+}
+
+
+# --- Procesamiento de Comandos ---
+COMMAND=$1
+shift
+
+case "$COMMAND" in
+    start)
+        start_services
+        ;;
+    stop)
+        stop_services
+        ;;
+    restart)
+        restart_services
+        ;;
+    status)
+        show_status
+        ;;
+    logs)
+        show_logs "$@"
+        ;;
+    update)
+        update_all
+        ;;
+    help|--help|-h|'')
+        show_help
+        ;;
+    *)
+        echo "$(get_translation 'unknown_command') '$COMMAND'"
+        show_help
+        exit 1
+        ;;
+esac
+
+exit 0

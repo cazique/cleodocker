@@ -1,0 +1,73 @@
+#
+# docker-compose.prod.yml - Configuración de Docker Compose para producción
+#
+# Uso: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ./web
+      # Usar un Dockerfile de varias etapas para una imagen más pequeña
+      # dockerfile: Dockerfile.prod 
+    restart: always # Asegurar que siempre se reinicie
+    ports:
+      # No exponer el puerto directamente. Usar un proxy inverso como Traefik o Nginx.
+      # - "8080:5000" 
+      - "127.0.0.1:8080:8000" # Exponer solo en localhost para el proxy
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY_FILE=/run/secrets/flask_secret_key # Usar Docker Secrets
+      - DATABASE_PATH=/app/config/cleodocker.db
+    # Usar Gunicorn como servidor WSGI de producción
+    command: gunicorn --workers 4 --bind 0.0.0.0:8000 "app:app"
+    secrets:
+      - flask_secret_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/login"] # Endpoint de healthcheck
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # --- Proxy Inverso con SSL automático ---
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "cleodocker_traefik"
+    restart: always
+    command:
+      - "--api.insecure=true" # Solo para debug, deshabilitar en prod real
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=tu-email@dominio.com" # Añadir email
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8082:8080" # Dashboard de Traefik
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - cleonet
+    labels:
+      # Redirección global de HTTP a HTTPS
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      
+      # Reglas para el panel de cleodocker
+      - "traefik.enable=true"
+      - "traefik.http.routers.cleodocker-web.rule=Host(`cleo.tu-dominio.com`)" # Cambiar dominio
+      - "traefik.http.routers.cleodocker-web.entrypoints=websecure"
+      - "traefik.http.routers.cleodocker-web.tls.certresolver=myresolver"
+      - "traefik.http.services.cleodocker-web.loadbalancer.server.port=8000"
+
+secrets:
+  flask_secret_key:
+    file: ./config/flask_secret.txt # Crear este archivo con una clave aleatoria

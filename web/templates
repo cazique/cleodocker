@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# modules/docker_setup.sh - Script para instalar Docker y Docker Compose
+#
+
+# --- Funciones de Utilidad ---
+log_setup() {
+    echo "DOCKER_SETUP: $1"
+}
+
+# --- Lógica de Instalación ---
+
+# Detectar SO
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
+else
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+fi
+
+log_setup "Detectado sistema operativo: $OS"
+
+case "$OS" in
+    ubuntu|debian)
+        log_setup "Instalando Docker para Debian/Ubuntu..."
+        apt-get update
+        apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-get update
+        apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        
+        # Añadir usuario actual al grupo docker
+        if [ -n "$SUDO_USER" ]; then
+            usermod -aG docker "$SUDO_USER"
+            log_setup "Usuario $SUDO_USER añadido al grupo 'docker'. Necesitarás volver a iniciar sesión para que los cambios surtan efecto."
+        else
+            log_setup "No se pudo detectar el usuario no root. Añade tu usuario al grupo 'docker' manualmente."
+        fi
+        ;;
+        
+    fedora|centos|rhel)
+        log_setup "Instalando Docker para Fedora/CentOS..."
+        yum install -y yum-utils
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        systemctl start docker
+        systemctl enable docker
+        ;;
+        
+    arch)
+        log_setup "Instalando Docker para Arch Linux..."
+        pacman -S --noconfirm docker docker-compose
+        systemctl start docker
+        systemctl enable docker
+        ;;
+        
+    *)
+        log_setup "Sistema operativo no soportado por este script de instalación automática: $OS."
+        log_setup "Por favor, instala Docker y Docker Compose manualmente siguiendo la documentación oficial."
+        exit 1
+        ;;
+esac
+
+log_setup "Verificando la instalación de Docker..."
+if command -v docker &> /dev/null && docker --version; then
+    log_setup "Docker instalado correctamente."
+else
+    log_setup "La instalación de Docker falló."
+    exit 1
+fi
+
+log_setup "Verificando la instalación de Docker Compose..."
+if docker compose version &> /dev/null; then
+    log_setup "Docker Compose (plugin) instalado correctamente."
+elif command -v docker-compose &> /dev/null; then
+    log_setup "Docker Compose (standalone) instalado correctamente."
+else
+    log_setup "La instalación de Docker Compose falló."
+    exit 1
+fi
+
+log_setup "Instalación del entorno Docker completada."

@@ -1,0 +1,20 @@
+# cleodocker - Tu Gestor Universal de Aplicaciones Docker
+
+![cleodocker Logo](https://via.placeholder.com/600x200.png?text=cleodocker)
+
+**cleodocker** es una solución todo-en-uno para simplificar la instalación, gestión y monitorización de aplicaciones auto-alojadas (self-hosted) usando Docker. Con un instalador universal, un panel web intuitivo y un potente CLI, cleodocker está diseñado para ser accesible para principiantes y potente para usuarios avanzados.
+
+## ✨ Características Principales
+
+-   **Instalador Universal**: Un único comando para instalar en macOS, Linux (múltiples distribuciones) y Windows (vía WSL2).
+-   **Panel Web Intuitivo**: Gestiona tus aplicaciones, monitoriza el estado del sistema en tiempo real y visualiza logs desde una interfaz web amigable.
+-   **Catálogo de Software Extenso**: Accede a un catálogo curado de más de 200 aplicaciones open-source populares, listas para ser instaladas con un solo clic.
+-   **Multiplataforma Real**: Soporte optimizado para cada sistema, incluyendo el uso de Colima en macOS para un rendimiento superior.
+-   **Monitorización Integrada**: Métricas en tiempo real de CPU, RAM, disco y estado de los contenedores gracias a cAdvisor y Node Exporter.
+-   **CLI Potente**: Controla cada aspecto de tu instancia de cleodocker desde la línea de comandos.
+-   **Internacionalización**: Soporte para múltiples idiomas (inglés, español, francés, alemán, italiano).
+-   **Detección de GPU**: Detección automática de GPUs NVIDIA, AMD e Intel para cargas de trabajo que requieran aceleración por hardware.
+
+## 🚀 Instalación Rápida
+
+### Linux / macOS / WSL
