@@ -1,10 +1,20 @@
-```markdown
 # 🐳 cleodocker - Instalador Universal Docker
 
 ![GitHub](https://img.shields.io/github/license/cazique/cleodocker)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)
 ![Multiplatform](https://img.shields.io/badge/Platform-macOS%20|%20Linux%20|%20Windows-success)
 ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
+
+---
+
+## 🌎 Selecciona tu Idioma
+
+| Idioma | English | Español | Français | Deutsch | Italiano |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Bandera** | [![English](https://img.shields.io/badge/English-blue?style=flat-square)](README_en.md) | [![Español](https://img.shields.io/badge/Español-blue?style=flat-square)](README.md) | [![Français](https://img.shields.io/badge/Français-blue?style=flat-square)](README_fr.md) | [![Deutsch](https://img.shields.io/badge/Deutsch-blue?style=flat-square)](README_de.md) | [![Italiano](https://img.shields.io/badge/Italiano-blue?style=flat-square)](README_it.md) |
+| **Enlace** | [🇺🇸 ReadMe](README_en.md) | [🇪🇸 ReadMe](README.md) | [🇫🇷 Lisez-moi](README_fr.md) | [🇩🇪 Liesmich](README_de.md) | [🇮🇹 Leggimi](README_it.md) |
+
+---
 
 **cleodocker** es un instalador inteligente y multiplataforma que automatiza la configuración completa de entornos Docker con un panel de administración web integrado. Diseñado para ser simple, potente y comunitario.
 
@@ -34,7 +44,6 @@
 
 ### 📦 **Catálogo de Software**
 20 categorías con las mejores aplicaciones open-source:
-
 | Categoría | Aplicaciones |
 |-----------|--------------|
 | **🧠 AI/ML** | Ollama, TensorFlow, Jupyter |
@@ -45,7 +54,6 @@
 | **🛡️ Security** | Vault, Trivy, CrowdSec |
 | **🎮 Gaming** | Minecraft, Terraria, Factorio |
 | **📺 Media** | Jellyfin, Plex, PhotoPrism |
-
 *(Y muchas más...)*
 
 ---
@@ -106,7 +114,6 @@ cleo backup restore latest
 ---
 
 ## 🏗️ Arquitectura
-
 ```
 cleodocker/
 ├── 🐚 install.sh              # Instalador principal
@@ -132,7 +139,7 @@ cleodocker/
 cleodocker está disponible en 5 idiomas:
 
 - 🇪🇸 **Español** (predeterminado)
-- 🇺🇸 **English** 
+- 🇺🇸 **English**
 - 🇫🇷 **Français**
 - 🇩🇪 **Deutsch**
 - 🇮🇹 **Italiano**
@@ -178,7 +185,7 @@ cleo config set language en
 
 ## 🤝 Contribuir
 
-¡cleodocker es un proyecto comunitario! 
+¡cleodocker es un proyecto comunitario!
 
 ### **¿Cómo contribuir?**
 1. 🍴 Haz fork del proyecto
@@ -213,11 +220,11 @@ cd cleodocker
 ### **Estructura para desarrolladores**
 ```bash
 .
-├── src/                    # Código fuente
-├── tests/                  # Tests automatizados
-├── docs/                   # Documentación
-├── scripts/                # Scripts de build
-└── examples/               # Ejemplos de uso
+├── src/ # Código fuente
+├── tests/ # Tests automatizados
+├── docs/ # Documentación
+├── scripts/ # Scripts de build
+└── examples/ # Ejemplos de uso
 ```
 
 ---
@@ -279,23 +286,6 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 ---
 
 <div align="center">
-
 **¿Te gusta cleodocker? ¡Dale una ⭐ al repositorio!**
-
 [![Star History Chart](https://api.star-history.com/svg?repos=cazique/cleodocker&type=Date)](https://star-history.com/#cazique/cleodocker&Date)
-
 </div>
-```
-
-Este README.md incluye:
-
-- 🎨 **Badges con colores** para estado y plataformas
-- 🐳 **Iconos y emojis** para mejor visualización
-- 📊 **Tablas organizadas** para categorías y documentación
-- 🚀 **Comandos listos para copiar**
-- 🔧 **Secciones técnicas** detalladas
-- 🤝 **Instrucciones para contribuir**
-- 📱 **Diseño responsive** para GitHub
-- 📈 **Gráfico de estrellas** interactivo
-
-¡Es perfecto para tu repositorio! Solo necesitas copiarlo y pegarlo como `README.md` en la raíz de tu proyecto.
